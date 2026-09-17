@@ -1,0 +1,34 @@
+﻿name: Security & Integrity Check
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  security-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🔒 Check that private/ directory is NOT tracked
+        run: |
+          if git ls-files | grep -E '^private/'; then
+            echo  ❌ CRITICAL: Sensitive files in private/ were committed to Git!
+            exit 1
+          fi
+          echo ✅ Security Check Passed: No private/ data tracked.
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 🧪 Run CLI Smoke Test (Sample Mode)
+        run: |
+          python sacrament.py status
+          python sacrament.py plan --weeks 4
+          python sacrament.py recommend 2026-10-11

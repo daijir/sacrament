@@ -15,9 +15,28 @@ from pathlib import Path
 from typing import List, Dict, Optional, Tuple
 
 DATA_DIR = Path(__file__).resolve().parent
-MEMBERS_CSV = DATA_DIR / "members.csv"
-HISTORY_JSON = DATA_DIR / "history.json"
-SCHEDULE_JSON = DATA_DIR / "schedule.json"
+PRIVATE_DIR = DATA_DIR / "private"
+SAMPLE_DIR = DATA_DIR / "sample_data"
+
+# 🔒 private/members.csv があれば本番モード、なければ sample_data/ を使用
+if (PRIVATE_DIR / "members.csv").exists():
+    MEMBERS_CSV = PRIVATE_DIR / "members.csv"
+    HISTORY_JSON = PRIVATE_DIR / "history.json"
+    SCHEDULE_JSON = PRIVATE_DIR / "schedule.json"
+    IS_PRIVATE_MODE = True
+else:
+    MEMBERS_CSV = SAMPLE_DIR / "members.csv"
+    HISTORY_JSON = SAMPLE_DIR / "history.json"
+    SCHEDULE_JSON = SAMPLE_DIR / "schedule.json"
+    IS_PRIVATE_MODE = False
+
+
+def print_mode_badge():
+    """実行モードのバッジを表示"""
+    if IS_PRIVATE_MODE:
+        print("🔒 【本番モード】 private/ の実会員データを使用しています (.gitignore対象)")
+    else:
+        print("🧪 【サンプルモード】 sample_data/ の架空データを使用しています")
 
 
 # ==========================================
@@ -50,7 +69,9 @@ class Member:
 def load_members() -> Dict[int, Member]:
     """members.csvから会員名簿を読み込む"""
     if not MEMBERS_CSV.exists():
-        print(f"[エラー] {MEMBERS_CSV} が見つかりません。")
+        print(f"[エラー] 会員ファイルが見つかりません: {MEMBERS_CSV}")
+        print("サンプルを使用する場合は sample_data/members.csv を配置してください。")
+        print("本番データを使用する場合は private/members.csv を配置してください。")
         sys.exit(1)
 
     members = {}
@@ -102,6 +123,7 @@ def load_history() -> List[Dict]:
 
 def save_history(history: List[Dict]):
     """history.jsonに保存"""
+    HISTORY_JSON.parent.mkdir(parents=True, exist_ok=True)
     with open(HISTORY_JSON, mode="w", encoding="utf-8") as f:
         json.dump(history, f, ensure_ascii=False, indent=2)
 
@@ -119,6 +141,7 @@ def load_schedule() -> Dict[str, Dict]:
 
 def save_schedule(schedule: Dict[str, Dict]):
     """schedule.jsonに保存"""
+    SCHEDULE_JSON.parent.mkdir(parents=True, exist_ok=True)
     with open(SCHEDULE_JSON, mode="w", encoding="utf-8") as f:
         json.dump(schedule, f, ensure_ascii=False, indent=2)
 
@@ -196,6 +219,7 @@ def calculate_score(
 
 def cmd_init(args):
     """初期データのシード（過去履歴の自動生成）"""
+    print_mode_badge()
     members = load_members()
     base_date = date.today()
     random.seed(42)
@@ -223,21 +247,21 @@ def cmd_init(args):
             })
 
     save_history(history)
-    print(f"✅ 初期化完了: {len(history)} 件の過去履歴を {HISTORY_JSON.name} に生成しました。")
+    print(f"✅ 初期化完了: {len(history)} 件の過去履歴を {HISTORY_JSON} に生成しました。")
 
 
 def cmd_status(args):
     """会員ごとの登壇・祈祷実績および『ご無沙汰』ランキング表示"""
+    print_mode_badge()
     members = load_members()
     today = date.today()
 
     print("\n" + "=" * 70)
-    print("      【会員ステータス & お話ご無沙汰ランキング TOP 15】")
+    print("      【会員ステータス & お話ご無沙汰ランキング】")
     print("=" * 70)
     
     # ビショップリック以外の成人 & 青少年
     active_pool = [m for m in members.values() if not m.is_bishopric]
-    # 前回話した日が古い順（Noneは最古扱い）
     active_pool.sort(
         key=lambda m: (m.last_talk_date is not None, m.last_talk_date or date.min)
     )
@@ -276,13 +300,11 @@ def cmd_recommend(args):
         return
 
     is_fast_sunday = (target_date.day <= 7)
+    print_mode_badge()
     members = load_members()
     assigned = []
 
-    # すでに確定しているスケジュールがあれば読み込む
-    schedule = load_schedule()
     d_str = target_date.strftime("%Y-%m-%d")
-    existing = schedule.get(d_str, {})
 
     print("\n" + "=" * 76)
     print(f"   聖餐会レコメンド: {d_str} {'【断食証しの会】' if is_fast_sunday else '【通常聖餐会】'}")
@@ -305,7 +327,6 @@ def cmd_recommend(args):
     # 2. 成人のお話（断食証しの会でない場合）
     if not is_fast_sunday:
         print("\n■ 【成人のお話 (10-12分枠)】 候補推薦:")
-        # 夫婦ペア推薦のチェック
         couples: Dict[int, List[Member]] = {}
         for m in members.values():
             if m.category == "adult" and m.couple_talk_together and not m.is_bishopric:
@@ -324,7 +345,6 @@ def cmd_recommend(args):
             best_c = couple_recommendations[0]
             print(f"  ★ 【夫婦ペア推薦】: {best_c[1].name} & {best_c[2].name} (夫婦登壇希望フラグあり)")
 
-        # 単身/通常成人の候補
         adults = [m for m in members.values() if m.category == "adult" and not m.is_bishopric]
         scored_adults = []
         for a in adults:
@@ -371,6 +391,7 @@ def cmd_replace(args):
         print("[エラー] 日付形式は YYYY-MM-DD です。")
         return
 
+    print_mode_badge()
     members = load_members()
     exclude_names = [n.strip() for n in args.exclude.split(",") if n.strip()]
     exclude_ids = [m.id for m in members.values() if m.name in exclude_names]
@@ -411,10 +432,10 @@ def cmd_plan(args):
         print("[エラー] 日付形式は YYYY-MM-DD です。")
         return
 
-    # 直近の日曜日に合わせる
     while start_date.weekday() != 6:
         start_date += timedelta(days=1)
 
+    print_mode_badge()
     members = load_members()
     current = start_date
 
@@ -452,7 +473,6 @@ def cmd_plan(args):
         ben.last_prayer_date = current
 
         if not is_fast:
-            # ユース
             youths = [m for m in members.values() if m.category == "youth"]
             youths.sort(key=lambda m: calculate_score(m, current, "talk", assigned_today)[0], reverse=True)
             y = youths[0]
@@ -460,7 +480,6 @@ def cmd_plan(args):
             assigned_today.append(y)
             y.last_talk_date = current
 
-            # 成人お話
             adults = [m for m in members.values() if m.category == "adult" and not m.is_bishopric]
             adults.sort(key=lambda m: calculate_score(m, current, "talk", assigned_today)[0], reverse=True)
             sp1 = adults[0]
@@ -468,7 +487,6 @@ def cmd_plan(args):
             sp1.last_talk_date = current
             at1_str = f"{sp1.name}"
 
-            # 2人目 (異性優先)
             other_g = "F" if sp1.gender == "M" else "M"
             adults_sub = [m for m in adults if m.id != sp1.id]
             g_pref = [m for m in adults_sub if m.gender == other_g]
@@ -492,28 +510,23 @@ def main():
     )
     subparsers = parser.add_subparsers(dest="command", help="実行コマンド")
 
-    # init
     p_init = subparsers.add_parser("init", help="過去履歴の初期シードデータを生成")
     p_init.set_defaults(func=cmd_init)
 
-    # status
     p_status = subparsers.add_parser("status", help="会員のお話ご無沙汰状況・履歴を表示")
     p_status.add_argument("--top", type=int, default=15, help="表示件数 (デフォルト: 15)")
     p_status.set_defaults(func=cmd_status)
 
-    # recommend
     p_rec = subparsers.add_parser("recommend", help="特定の日曜日の候補者レコメンド（霊感で選ぶ用）")
     p_rec.add_argument("date", type=str, help="対象日 (YYYY-MM-DD)")
     p_rec.set_defaults(func=cmd_recommend)
 
-    # replace
     p_rep = subparsers.add_parser("replace", help="断られた場合の次点候補を再検索")
     p_rep.add_argument("date", type=str, help="対象日 (YYYY-MM-DD)")
     p_rep.add_argument("--role", type=str, required=True, choices=["youth_talk", "adult_talk", "prayer"], help="役割")
     p_rep.add_argument("--exclude", type=str, required=True, help="断られた会員名（カンマ区切りで複数可）")
     p_rep.set_defaults(func=cmd_replace)
 
-    # plan
     p_plan = subparsers.add_parser("plan", help="向こうN週間のドラフトを一括生成")
     p_plan.add_argument("--start", type=str, default="", help="開始日 (YYYY-MM-DD, 省略時は直近の日曜)")
     p_plan.add_argument("--weeks", type=int, default=12, help="生成週数 (デフォルト: 12)")

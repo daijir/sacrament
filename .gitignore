@@ -1,8 +1,19 @@
-﻿__pycache__/
+﻿# Python
+__pycache__/
 *.py[cod]
 *.class
+
+# エディタ設定
 .vscode/
 .idea/
 .DS_Store
-# 本物の個人情報データ用（必要に応じて）
-# local_*.csv
+
+# ==========================================
+# 🔒 機密・個人情報ディレクトリ (絶対追跡禁止)
+# ==========================================
+private/
+*.private.*
+*.local.*
+real_*.csv
+real_*.json
+schedule.json
