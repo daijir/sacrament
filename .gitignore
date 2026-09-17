@@ -1,0 +1,8 @@
+﻿__pycache__/
+*.py[cod]
+*.class
+.vscode/
+.idea/
+.DS_Store
+# 本物の個人情報データ用（必要に応じて）
+# local_*.csv
