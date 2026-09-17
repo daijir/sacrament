@@ -18,7 +18,7 @@ DATA_DIR = Path(__file__).resolve().parent
 PRIVATE_DIR = DATA_DIR / "private"
 SAMPLE_DIR = DATA_DIR / "sample_data"
 
-# 🔒 private/members.csv があれば本番モード、なければ sample_data/ を使用
+# private/members.csv があれば本番モード、なければ sample_data/ を使用
 if (PRIVATE_DIR / "members.csv").exists():
     MEMBERS_CSV = PRIVATE_DIR / "members.csv"
     HISTORY_JSON = PRIVATE_DIR / "history.json"
@@ -34,9 +34,9 @@ else:
 def print_mode_badge():
     """実行モードのバッジを表示"""
     if IS_PRIVATE_MODE:
-        print("🔒 【本番モード】 private/ の実会員データを使用しています (.gitignore対象)")
+        print("[本番モード] private/ の実会員データを使用しています (.gitignore対象)")
     else:
-        print("🧪 【サンプルモード】 sample_data/ の架空データを使用しています")
+        print("[サンプルモード] sample_data/ の架空データを使用しています")
 
 
 # ==========================================
@@ -247,11 +247,11 @@ def cmd_init(args):
             })
 
     save_history(history)
-    print(f"✅ 初期化完了: {len(history)} 件の過去履歴を {HISTORY_JSON} に生成しました。")
+    print(f"[完了] 初期化完了: {len(history)} 件の過去履歴を {HISTORY_JSON} に生成しました。")
 
 
 def cmd_status(args):
-    """会員ごとの登壇・祈祷実績および『ご無沙汰』ランキング表示"""
+    """会員ごとの登壇・お祈り実績および『ご無沙汰』ランキング表示"""
     print_mode_badge()
     members = load_members()
     today = date.today()
@@ -343,7 +343,7 @@ def cmd_recommend(args):
         if couple_recommendations:
             couple_recommendations.sort(key=lambda x: x[0], reverse=True)
             best_c = couple_recommendations[0]
-            print(f"  ★ 【夫婦ペア推薦】: {best_c[1].name} & {best_c[2].name} (夫婦登壇希望フラグあり)")
+            print(f"  [夫婦ペア推薦]: {best_c[1].name} & {best_c[2].name} (夫婦登壇希望フラグあり)")
 
         adults = [m for m in members.values() if m.category == "adult" and not m.is_bishopric]
         scored_adults = []
@@ -418,7 +418,7 @@ def cmd_replace(args):
 
     scored.sort(key=lambda x: x[0], reverse=True)
 
-    print(f"\n★ 次点候補リスト (上位5名):")
+    print(f"\n[次点候補リスト] (上位5名):")
     for rank, (score, m, reason) in enumerate(scored[:5], 1):
         print(f"  {rank}. {m.name} ({m.gender}, {m.category}) -> {reason}")
     print("=" * 70 + "\n")
@@ -442,7 +442,7 @@ def cmd_plan(args):
     print("\n" + "=" * 90)
     print(f"            聖餐会スケジュール ドラフト生成 ({args.weeks}週間)")
     print("=" * 90)
-    print(f"{'日付':<12} | {'開会祈祷':<14} | {'青少年話':<12} | {'成人話1':<14} | {'成人話2':<14} | {'閉会祈祷':<14}")
+    print(f"{'日付':<12} | {'開会お祈り':<14} | {'青少年話':<12} | {'成人話1':<14} | {'成人話2':<14} | {'閉会お祈り':<14}")
     print("-" * 90)
 
     for _ in range(args.weeks):
@@ -456,7 +456,7 @@ def cmd_plan(args):
         at1_str = "-"
         at2_str = "-"
 
-        # 祈祷 (男女ペア)
+        # お祈り (男女ペア)
         prayers = [m for m in members.values() if not m.is_bishopric]
         m_pool = [m for m in prayers if m.gender == "M"]
         f_pool = [m for m in prayers if m.gender == "F"]
