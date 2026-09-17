@@ -1,4 +1,4 @@
-﻿name: Security & Integrity Check
+name: Security & Integrity Check
 
 on:
   push:
@@ -29,6 +29,12 @@ jobs:
 
       - name: 🧪 Run CLI Smoke Test (Sample Mode)
         run: |
+          python sacrament.py list
           python sacrament.py status
           python sacrament.py plan --weeks 4
           python sacrament.py recommend 2026-10-11
+
+      - name: 🔬 Run Unit, Probability & Edge Case Tests
+        run: |
+          python -m unittest discover tests -v
+

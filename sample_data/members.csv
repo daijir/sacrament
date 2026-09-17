@@ -1,41 +1,41 @@
-﻿id,name,gender,category,household_id,is_bishopric,couple_talk_together,has_small_children,is_new_member
-1,佐藤 健一 (ビショップ),M,adult,1,True,False,False,False
-2,佐藤 真弓,F,adult,1,False,False,False,False
-3,佐藤 蓮,M,youth,1,False,False,False,False
-4,鈴木 雄大 (第1顧問),M,adult,2,True,False,False,False
-5,鈴木 恵子,F,adult,2,False,False,False,False
-6,高橋 誠 (第2顧問),M,adult,3,True,False,False,False
-7,高橋 幸恵,F,adult,3,False,False,False,False
-8,高橋 結衣,F,youth,3,False,False,False,False
-9,田中 弘,M,adult,4,False,True,False,False
-10,田中 美穂,F,adult,4,False,True,False,False
-11,田中 颯太,M,youth,4,False,False,False,False
-12,渡辺 拓也,M,adult,5,False,False,True,False
-13,渡辺 香織,F,adult,5,False,False,True,False
-14,伊藤 直樹,M,adult,6,False,False,False,False
-15,伊藤 由香,F,adult,6,False,False,False,False
-16,伊藤 陸,M,youth,6,False,False,False,False
-17,伊藤 葵,F,youth,6,False,False,False,False
-18,山本 明美,F,adult,7,False,False,False,False
-19,山本 翔太,M,youth,7,False,False,False,False
-20,中村 莉乃,F,youth,8,False,False,False,False
-21,小林 健二 (新会員),M,adult,9,False,False,False,True
-22,加藤 秀樹,M,adult,10,False,True,False,False
-23,加藤 陽子,F,adult,10,False,True,False,False
-24,吉田 誠司,M,adult,11,False,False,False,False
-25,吉田 智子,F,adult,11,False,False,False,False
-26,山田 太郎,M,adult,12,False,False,False,False
-27,山田 花子,F,adult,12,False,False,False,False
-28,佐々木 亮,M,adult,13,False,False,False,False
-29,佐々木 晴美,F,adult,13,False,False,False,False
-30,山口 大地,M,adult,14,False,False,False,False
-31,松本 美紀,F,adult,15,False,False,False,False
-32,井上 浩平,M,adult,16,False,False,False,False
-33,井上 裕子,F,adult,16,False,False,False,False
-34,木村 純一,M,adult,17,False,False,False,False
-35,林 さくら,F,adult,18,False,False,False,False
-36,清水 俊介,M,adult,19,False,False,False,False
-37,清水 友理,F,adult,19,False,False,False,False
-38,斎藤 和彦,M,adult,20,False,False,False,False
-39,池田 麻衣,F,adult,21,False,False,False,False
-40,橋本 勇,M,adult,22,False,False,False,False
+id,name,gender,category,household_id,is_bishopric,couple_talk_together,has_small_children,is_new_member,is_high_councilor
+1,佐藤 健一 (ビショップ),M,adult,1,True,False,False,False,False
+2,佐藤 真弓,F,adult,1,False,False,False,False,False
+3,佐藤 蓮,M,youth,1,False,False,False,False,False
+4,鈴木 雄大 (第1顧問),M,adult,2,True,False,False,False,False
+5,鈴木 恵子,F,adult,2,False,False,False,False,False
+6,高橋 誠 (第2顧問),M,adult,3,True,False,False,False,False
+7,高橋 幸恵,F,adult,3,False,False,False,False,False
+8,高橋 結衣,F,youth,3,False,False,False,False,False
+9,田中 弘,M,adult,4,False,True,False,False,False
+10,田中 美穂,F,adult,4,False,True,False,False,False
+11,田中 颯太,M,youth,4,False,False,False,False,False
+12,渡辺 拓也,M,adult,5,False,False,True,False,False
+13,渡辺 香織,F,adult,5,False,False,True,False,False
+14,伊藤 直樹,M,adult,6,False,False,False,False,False
+15,伊藤 由香,F,adult,6,False,False,False,False,False
+16,伊藤 陸,M,youth,6,False,False,False,False,False
+17,伊藤 葵,F,youth,6,False,False,False,False,False
+18,山本 明美,F,adult,7,False,False,False,False,False
+19,山本 翔太,M,youth,7,False,False,False,False,False
+20,中村 莉乃,F,youth,8,False,False,False,False,False
+21,小林 健二 (新会員),M,adult,9,False,False,False,True,False
+22,加藤 秀樹,M,adult,10,False,True,False,False,False
+23,加藤 陽子,F,adult,10,False,True,False,False,False
+24,吉田 誠司,M,adult,11,False,False,False,False,False
+25,吉田 智子,F,adult,11,False,False,False,False,False
+26,山田 太郎,M,adult,12,False,False,False,False,False
+27,山田 花子,F,adult,12,False,False,False,False,False
+28,佐々木 亮,M,adult,13,False,False,False,False,False
+29,佐々木 晴美,F,adult,13,False,False,False,False,False
+30,山口 大地,M,adult,14,False,False,False,False,False
+31,松本 美紀,F,adult,15,False,False,False,False,False
+32,井上 浩平 (高等評議員),M,adult,16,False,False,False,False,True
+33,井上 裕子,F,adult,16,False,False,False,False,False
+34,木村 純一,M,adult,17,False,False,False,False,False
+35,林 さくら,F,adult,18,False,False,False,False,False
+36,清水 俊介,M,adult,19,False,False,False,False,False
+37,清水 友理,F,adult,19,False,False,False,False,False
+38,斎藤 和彦,M,adult,20,False,False,False,False,False
+39,池田 麻衣,F,adult,21,False,False,False,False,False
+40,橋本 勇,M,adult,22,False,False,False,False,False

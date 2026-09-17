@@ -391,7 +391,7 @@ def print_schedule(services: List[SundayService], members: List[Member]):
         ben = f"{s.benediction.name} ({s.benediction.gender})" if s.benediction else "-"
         
         if s.is_fast_sunday:
-            yt = "【断食証し】"
+            yt = "【断食証】"
             at1 = "-"
             at2 = "-"
         else:

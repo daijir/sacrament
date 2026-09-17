@@ -91,6 +91,15 @@ Python 3 がインストールされていれば、外部ライブラリ（`pip 
 `private/members.csv` がない状態では、自動的に架空の40人サンプルで動作します。
 
 ```bash
+# 【会議用】成人男女・青少年別の縦長ご無沙汰リストを表示（会議の配布・共有用）
+python sacrament.py list
+
+# 青少年のみ表示 / お祈りのご無沙汰リスト / Excel貼り付け用TSV出力
+python sacrament.py list --category youth
+python sacrament.py list --role prayer
+python sacrament.py list --format tsv
+python sacrament.py list --format markdown
+
 # 会員の「お話ご無沙汰ランキング」を表示
 python sacrament.py status
 
@@ -113,10 +122,11 @@ python sacrament.py replace 2026-10-11 --role adult_talk --exclude "加藤 秀�
 
 | コマンド | 引数 | 用途 |
 | :--- | :--- | :--- |
+| `list` | `[--role {talk,prayer}] [--category {all,adult-m,adult-f,youth}] [--format {table,tsv,markdown}] [--top N]` | **【会議用】** 成人男女・青少年別の縦長ご無沙汰リスト（印刷・Excel共有向け） |
 | `status` | `--top N` | 会員の最終登壇日・経過日数ランキング一覧を表示 |
-| `recommend` | `<YYYY-MM-DD>` | その日の各スロットの候補トップ3〜5を理由付きで推薦 |
+| `recommend` | `<YYYY-MM-DD> [--hc-week {0,2,3}]` | その日の各スロットの候補トップ3〜5を理由付きで推薦（第3日曜は高等評議員週として成人1枠に自動調整） |
 | `replace` | `<YYYY-MM-DD> --role <ROLE> --exclude <名前>` | 断られた際の次点候補（Rank 2〜5）を即座に再提示 |
-| `plan` | `--weeks N [--start YYYY-MM-DD]` | 指定週分のドラフトスケジュールを一括生成 |
+| `plan` | `--weeks N [--start YYYY-MM-DD] [--hc-week {0,2,3}]` | 指定週分のドラフトスケジュールを一括生成（高等評議員訪問週はスロット自動挿入） |
 | `init` | なし | 過去実績ログ（`history.json`）の初期ダミーデータを生成 |
 
 ---
@@ -131,12 +141,47 @@ python sacrament.py replace 2026-10-11 --role adult_talk --exclude "加藤 秀�
 | `category` | adult / youth | 区分（成人: adult, 青少年: youth） |
 | `household_id` | 数値 | 世帯ID（同じ家族・夫婦は同じ番号） |
 | `is_bishopric` | True / False | ビショップリックフラグ（Trueなら通常枠から除外） |
+| `is_high_councilor` | True / False | 高等評議員フラグ（Trueなら自ワードお話枠から除外、お祈りは対象） |
 | `couple_talk_together` | True / False | 夫婦登壇希望（Trueなら同じ週へのペアリング優先） |
 | `has_small_children` | True / False | 乳幼児あり（Trueなら夫婦が同日に重なるのを回避） |
 | `is_new_member` | True / False | 新会員（Trueならお祈り優先ボーナス） |
 
 ---
 
+## 自動テスト（制約・エッジケース・確率公平性）
+
+外部ライブラリ不要で、Python標準の `unittest` で即座にテストを実行できます。
+
+```bash
+# 全テスト（17項目）の実行
+python -m unittest discover tests -v
+
+# 確率・公平性テストのみ実行（52週間の長期シミュレーション）
+python -m unittest tests/test_probability.py -v
+
+# エッジケーステストのみ実行（極小支部、青少年0人、男女偏り等）
+python -m unittest tests/test_edge_cases.py -v
+```
+
+### 主な検証内容
+1. **確率・公平性テスト (`test_probability.py`)**:
+   - 1年間のシミュレーションで「誰一人放置されない（飢餓ゼロ）」こと
+   - 通年のお祈り担当の男女比率が 50% : 50%（誤差±5%）に収束すること
+   - 成人話者の登壇回数の標準偏差が 1.0 未満（特定の人に偏らない）
+   - 青少年（ユース）が年間を通じて均等に経験を積めること
+2. **エッジケーステスト (`test_edge_cases.py`)**:
+   - 青少年0人の高齢化支部での安全なスキップ
+   - 会員わずか6名の極小支部でのデッドロック回避（自動フォールバック選出）
+   - 男性のみ・女性のみの環境でのクラッシュ防止
+   - 全世帯が乳幼児ありの場合の同日重複回避
+   - 古いバージョンのCSV（カラム欠損）の後方互換性
+3. **ハード制約テスト (`test_constraints.py`)**:
+   - ビショップリックおよび高等評議員の自ワード通常枠からの厳格な除外
+   - 同日重複の絶対禁止、最低インターバル（お話60日、お祈り28日）の保証
+
+---
+
 ## 免責事項
 * 本スクリプトは有志による個人開発プロジェクトであり、末日聖徒イエス・キリスト教会の公式ソフトウェアではありません。
 * 会員データの取り扱いには十分注意し、個人PCのローカル環境内でのみ運用してください。
+
